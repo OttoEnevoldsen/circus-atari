@@ -10,7 +10,7 @@ Artwork from https://kenney.nl/assets/space-shooter-redux
 import arcade
 
 # Import sprites from local file my_sprites.py
-from my_sprites import Player, PlayerShot
+from my_sprites import Player, PlayerShot, Balloon
 
 # Set the scaling of all sprites in the game
 SPRITE_SCALING = 0.5
@@ -27,6 +27,10 @@ PLAYER_START_Y = 50
 PLAYER_SHOT_SPEED = 300
 
 FIRE_KEY = arcade.key.SPACE
+
+# variables controlling the balloons
+NUM_OF_BALLOONS = 12
+BALLOON_SPEED = 4
 
 
 class GameView(arcade.View):
@@ -54,6 +58,23 @@ class GameView(arcade.View):
             max_x_pos=SCREEN_WIDTH,
             scale=SPRITE_SCALING,
         )
+
+        self.balloon_list = arcade.SpriteList()
+
+
+        # create the balloons
+
+        for i in range(NUM_OF_BALLOONS):
+            for row in range(3):
+
+                self.balloon_list.append(
+                    Balloon(
+                        center_x=(SCREEN_WIDTH/NUM_OF_BALLOONS) * i,
+                        move_speed=BALLOON_SPEED,
+                        screen_width=SCREEN_WIDTH,
+                        row=row
+                    )
+                )
 
         # Track the current state of what keys are pressed
         self.left_pressed = False
@@ -84,7 +105,7 @@ class GameView(arcade.View):
             self.joystick = None
 
         # Set the background color
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.DARK_BLUE)
 
     def on_draw(self):
         """
@@ -100,6 +121,9 @@ class GameView(arcade.View):
         # Draw the player sprite
         self.player.draw()
 
+        # Draw the Balloons
+        self.balloon_list.draw()
+
         # Draw players score on screen
         arcade.draw_text(
             f"SCORE: {self.player_score}",  # Text to show
@@ -112,6 +136,9 @@ class GameView(arcade.View):
         """
         Movement and game logic
         """
+        for balloon in self.balloon_list:
+            if arcade.check_for_collision_with_list(balloon, self.player_shot_list):
+                balloon.kill()
 
         # Calculate player speed based on the keys pressed
         self.player.change_x = 0
@@ -132,8 +159,10 @@ class GameView(arcade.View):
         # Update the player shots
         self.player_shot_list.on_update(delta_time)
 
+        self.balloon_list.update()
+
         # The game is over when the player scores a 100 points
-        if self.player_score >= 100:
+        if self.player_score >= 1000:
             self.game_over()
 
     def game_over(self):

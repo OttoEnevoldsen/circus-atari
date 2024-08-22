@@ -81,3 +81,38 @@ class PlayerShot(arcade.Sprite):
         # Remove shot when over top of screen
         if self.bottom > self.max_y_pos:
             self.kill()
+
+class Balloon(arcade.Sprite):
+    def __init__(self, center_x=0, center_y=0, scale=1, move_speed=1, screen_width=400, row=0):
+        """
+        Balloons
+        """
+
+        self.move_speed = move_speed
+        self.screen_width = screen_width
+        center_y = 550 - (50*row)
+
+        self.row_colors = ["Yellow", "Blue", "Red"]
+
+        # Set the graphics to use for the sprite
+        # We need to flip it so it matches the mathematical angle/direction
+        super().__init__(
+            center_x=center_x,
+            center_y=center_y,
+            scale=scale,
+            filename=f"images/Power-ups/powerup{self.row_colors[(row%3)]}.png",
+            flipped_diagonally=True,
+            flipped_horizontally=True,
+            flipped_vertically=False,
+        )
+        self.direction = ((row%2)*2)-1 # even = -1 odd = 1
+
+    def update(self):
+
+        # movement
+        self.center_x += self.direction*self.move_speed
+        if self.center_x > self.screen_width:
+            self.center_x = 0
+        if self.center_x < 0:
+            self.center_x = self.screen_width
+
