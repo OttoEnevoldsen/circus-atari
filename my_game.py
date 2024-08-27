@@ -30,7 +30,9 @@ FIRE_KEY = arcade.key.SPACE
 
 # variables controlling the balloons
 NUM_OF_BALLOONS = 12
+NUM_OF_ROWS = 3
 BALLOON_SPEED = 4
+BALLOON_SIZE = 20
 
 
 class GameView(arcade.View):
@@ -65,14 +67,15 @@ class GameView(arcade.View):
         # create the balloons
 
         for i in range(NUM_OF_BALLOONS):
-            for row in range(3):
+            for row in range(NUM_OF_ROWS):
 
                 self.balloon_list.append(
                     Balloon(
-                        center_x=(SCREEN_WIDTH/NUM_OF_BALLOONS) * i,
+                        center_x=((SCREEN_WIDTH+(BALLOON_SIZE*2))/NUM_OF_BALLOONS) * i,
                         move_speed=BALLOON_SPEED,
                         screen_width=SCREEN_WIDTH,
-                        row=row
+                        row=row,
+                        balloon_size=BALLOON_SIZE
                     )
                 )
 

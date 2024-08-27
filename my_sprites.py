@@ -1,4 +1,5 @@
 import arcade
+import arcade.color
 
 
 class Player(arcade.Sprite):
@@ -83,27 +84,28 @@ class PlayerShot(arcade.Sprite):
             self.kill()
 
 class Balloon(arcade.Sprite):
-    def __init__(self, center_x=0, center_y=0, scale=1, move_speed=1, screen_width=400, row=0):
+    def __init__(self, center_x=0, center_y=0, move_speed=1, screen_width=400, row=0, balloon_size=10):
         """
         Balloons
         """
 
         self.move_speed = move_speed
         self.screen_width = screen_width
+        self.balloon_size = balloon_size
+
         center_y = 550 - (50*row)
 
-        self.row_colors = ["Yellow", "Blue", "Red"]
+        self.row_colors = [arcade.color.YELLOW, arcade.color.BLUE, arcade.color.RED]
 
         # Set the graphics to use for the sprite
         # We need to flip it so it matches the mathematical angle/direction
         super().__init__(
             center_x=center_x,
             center_y=center_y,
-            scale=scale,
-            filename=f"images/Power-ups/powerup{self.row_colors[(row%3)]}.png",
-            flipped_diagonally=True,
-            flipped_horizontally=True,
-            flipped_vertically=False,
+            texture=arcade.Texture.create_filled(
+                f"balloon_{row}",
+                (balloon_size, balloon_size),
+                self.row_colors[row%len(self.row_colors)])
         )
         self.direction = ((row%2)*2)-1 # even = -1 odd = 1
 
@@ -111,8 +113,8 @@ class Balloon(arcade.Sprite):
 
         # movement
         self.center_x += self.direction*self.move_speed
-        if self.center_x > self.screen_width:
-            self.center_x = 0
-        if self.center_x < 0:
-            self.center_x = self.screen_width
+        if self.center_x > self.screen_width + self.balloon_size:
+            self.center_x = 0 - self.balloon_size
+        if self.center_x < 0 - self.balloon_size:
+            self.center_x = self.screen_width + self.balloon_size
 
