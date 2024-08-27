@@ -61,23 +61,22 @@ class GameView(arcade.View):
             scale=SPRITE_SCALING,
         )
 
-        self.balloon_list = arcade.SpriteList()
+        self.balloon_rows_list = []
 
 
         # create the balloons
-
-        for i in range(NUM_OF_BALLOONS):
-            for row in range(NUM_OF_ROWS):
-
-                self.balloon_list.append(
-                    Balloon(
-                        center_x=((SCREEN_WIDTH+(BALLOON_SIZE*2))/NUM_OF_BALLOONS) * i,
-                        move_speed=BALLOON_SPEED,
-                        screen_width=SCREEN_WIDTH,
-                        row=row,
-                        balloon_size=BALLOON_SIZE
-                    )
+        for row in range(NUM_OF_ROWS):
+            self.balloon_rows_list.append(arcade.SpriteList())
+            for i in range(NUM_OF_BALLOONS):
+                balloon = Balloon(
+                    center_x=((SCREEN_WIDTH+(BALLOON_SIZE*2))/NUM_OF_BALLOONS) * i,
+                    move_speed=BALLOON_SPEED,
+                    screen_width=SCREEN_WIDTH,
+                    row=row,
+                    balloon_size=BALLOON_SIZE
                 )
+                self.balloon_rows_list[row].append(balloon)
+            
 
         # Track the current state of what keys are pressed
         self.left_pressed = False
@@ -125,7 +124,8 @@ class GameView(arcade.View):
         self.player.draw()
 
         # Draw the Balloons
-        self.balloon_list.draw()
+        for balloon_row in self.balloon_rows_list:
+            balloon_row.draw()
 
         # Draw players score on screen
         arcade.draw_text(
@@ -139,9 +139,10 @@ class GameView(arcade.View):
         """
         Movement and game logic
         """
-        for balloon in self.balloon_list:
-            if arcade.check_for_collision_with_list(balloon, self.player_shot_list):
-                balloon.kill()
+        for balloon_row in self.balloon_rows_list:
+            for balloon in balloon_row:
+                if arcade.check_for_collision_with_list(balloon, self.player_shot_list):
+                    balloon.kill()
 
         # Calculate player speed based on the keys pressed
         self.player.change_x = 0
@@ -162,7 +163,8 @@ class GameView(arcade.View):
         # Update the player shots
         self.player_shot_list.on_update(delta_time)
 
-        self.balloon_list.update()
+        for balloon_row in self.balloon_rows_list:
+            balloon_row.update()
 
         # The game is over when the player scores a 100 points
         if self.player_score >= 1000:
