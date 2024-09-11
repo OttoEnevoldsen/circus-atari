@@ -1,9 +1,5 @@
 # python-arcade
-A simple game built with Python and the Arcade library. When the
-player gets 100 points, by firing shots, the game switches to the
-game over view. This repository is to be used as the starting
-point for other games.
-
+simple recreation of the game circus atari
 
 # Setup virtual environment
 
