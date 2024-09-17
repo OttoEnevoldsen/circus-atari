@@ -67,9 +67,6 @@ class PlayerShot(arcade.Sprite):
         # Shoot points in this direction
         self.angle = start_angle
 
-        # Shot moves forward. Sets self.change_x and self.change_y
-        self.forward(speed)
-
     def on_update(self, delta_time):
         """
         Move the sprite
@@ -84,7 +81,7 @@ class PlayerShot(arcade.Sprite):
             self.kill()
 
 class Balloon(arcade.Sprite):
-    def __init__(self, center_x=0, center_y=0, move_speed=1, screen_width=400, row=0, balloon_size=10):
+    def __init__(self, center_x=0, center_y=0, move_speed=1, screen_width=400, row=0, balloon_size=10, physics_engine=arcade.PymunkPhysicsEngine):
         """
         Balloons
         """
@@ -92,6 +89,7 @@ class Balloon(arcade.Sprite):
         self.move_speed = move_speed
         self.screen_width = screen_width
         self.balloon_size = balloon_size
+        self.physics_engine = physics_engine
 
         center_y = 550 - (50*row)
 
@@ -109,12 +107,15 @@ class Balloon(arcade.Sprite):
         )
         self.direction = ((row%2)*2)-1 # even = -1 odd = 1
 
-    def update(self):
+    def wrap_around(self):
 
         # movement
-        self.center_x += self.direction*self.move_speed
+        # self.center_x += self.direction*self.move_speed
         if self.center_x > self.screen_width + self.balloon_size:
-            self.center_x = 0 - self.balloon_size
+            self.physics_engine.set_position(self, (0 - self.balloon_size, self.center_y))
         if self.center_x < 0 - self.balloon_size:
-            self.center_x = self.screen_width + self.balloon_size
+            self.physics_engine.set_position(self, (self.screen_width + self.balloon_size, self.center_y))
+
+    def collision_with_player(self):
+        self.kill()
 

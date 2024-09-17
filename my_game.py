@@ -31,14 +31,17 @@ FIRE_KEY = arcade.key.SPACE
 # variables controlling the balloons
 NUM_OF_BALLOONS = 12
 NUM_OF_ROWS = 3
-BALLOON_SPEED = 4
-BALLOON_SIZE = 20
+BALLOON_SPEED = 250
+BALLOON_SIZE = 2
 
 
 class GameView(arcade.View):
     """
     The view with the game itself
     """
+
+    def c_balloon_collision(self, sprite_a, sprite_b, arbiter, space, data):
+        print(sprite_a.collision_with_player())
 
     def on_show_view(self):
         """
@@ -64,6 +67,16 @@ class GameView(arcade.View):
         self.balloon_rows_list = []
 
 
+        self.physics_engine = arcade.PymunkPhysicsEngine(
+            gravity=(0, -2000),
+            # damping=1.0
+        )
+        self.physics_engine.add_collision_handler(
+            first_type="balloon",
+            second_type="jumping_player",
+            post_handler=self.c_balloon_collision
+        )
+
         # create the balloons
         for row in range(NUM_OF_ROWS):
             self.balloon_rows_list.append(arcade.SpriteList())
@@ -73,9 +86,23 @@ class GameView(arcade.View):
                     move_speed=BALLOON_SPEED,
                     screen_width=SCREEN_WIDTH,
                     row=row,
-                    balloon_size=BALLOON_SIZE
+                    balloon_size=BALLOON_SIZE,
+                    physics_engine=self.physics_engine
                 )
                 self.balloon_rows_list[row].append(balloon)
+
+        # Add Balloons to the physics engine with no gravity
+        for i, row in enumerate(self.balloon_rows_list):
+            for b in row:
+                self.physics_engine.add_sprite(
+
+                    sprite=b,
+                    gravity=(0.0, 0.0),
+                    radius=BALLOON_SIZE/2,
+                    mass=1000,
+                    collision_type="balloon"
+                )
+                self.physics_engine.set_velocity(b, (BALLOON_SPEED * ((i % 2) - 0.5) * 2, 0))
             
 
         # Track the current state of what keys are pressed
@@ -139,10 +166,15 @@ class GameView(arcade.View):
         """
         Movement and game logic
         """
+
+        """
+        old method no physics engine
+        
         for balloon_row in self.balloon_rows_list:
             for balloon in balloon_row:
                 if arcade.check_for_collision_with_list(balloon, self.player_shot_list):
                     balloon.kill()
+        """
 
         # Calculate player speed based on the keys pressed
         self.player.change_x = 0
@@ -164,7 +196,11 @@ class GameView(arcade.View):
         self.player_shot_list.on_update(delta_time)
 
         for balloon_row in self.balloon_rows_list:
-            balloon_row.update()
+            for balloon in balloon_row:
+                balloon.wrap_around()
+
+        # Physics engine updates sprites
+        self.physics_engine.step()
 
         # The game is over when the player scores a 100 points
         if self.player_score >= 1000:
@@ -212,6 +248,15 @@ class GameView(arcade.View):
                 max_y_pos=SCREEN_HEIGHT,
                 scale=SPRITE_SCALING,
             )
+
+            # add shot to physics engine and give it velocity
+            self.physics_engine.add_sprite(
+                new_shot,
+                mass=0.001,
+                collision_type="jumping_player",
+                moment_of_inertia=100
+            )
+            self.physics_engine.set_velocity(new_shot, (0, 1600))
 
             # Add the new shot to the list of shots
             self.player_shot_list.append(new_shot)
