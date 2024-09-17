@@ -32,7 +32,7 @@ FIRE_KEY = arcade.key.SPACE
 NUM_OF_BALLOONS = 12
 NUM_OF_ROWS = 3
 BALLOON_SPEED = 250
-BALLOON_SIZE = 2
+BALLOON_SIZE = 20
 
 
 class GameView(arcade.View):
