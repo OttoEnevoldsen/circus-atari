@@ -41,7 +41,7 @@ class GameView(arcade.View):
     """
 
     def c_balloon_collision(self, sprite_a, sprite_b, arbiter, space, data):
-        print(sprite_a.collision_with_player())
+        pass
 
     def on_show_view(self):
         """
@@ -165,15 +165,6 @@ class GameView(arcade.View):
     def on_update(self, delta_time):
         """
         Movement and game logic
-        """
-
-        """
-        old method no physics engine
-        
-        for balloon_row in self.balloon_rows_list:
-            for balloon in balloon_row:
-                if arcade.check_for_collision_with_list(balloon, self.player_shot_list):
-                    balloon.kill()
         """
 
         # Calculate player speed based on the keys pressed
